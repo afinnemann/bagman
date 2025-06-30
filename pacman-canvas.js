@@ -1483,9 +1483,13 @@ function geronimo() {
 		game.score.refresh(".score");
 
 		// Pills
-		context.beginPath();
-		context.fillStyle = "White";
-		context.strokeStyle = "White";
+		//context.beginPath();
+		//context.fillStyle = "White";
+		//context.strokeStyle = "White";
+		+  // --- Bagman: draw flour trail instead of dots ---
+		drawFlourTrail();    // new helper (see below)
+
+		
 
 		var dotPosY;
 		if (game.map && game.map.posY && game.map.posY.length > 0) {
@@ -1530,6 +1534,33 @@ function geronimo() {
 		}
 
 	}
+
+	function drawFlourTrail() {
+    context.strokeStyle = "#FFFFFF";
+    context.lineWidth   = 4;
+    context.beginPath();
+    let started = false;
+
+	    if (game.map && game.map.posY) {
+	      $.each(game.map.posY, (ri, row) => {
+	        $.each(row.posX, (ci, cell) => {
+	          if (cell.type === "pill") {
+	            const cx = game.toPixelPos(cell.col - 1) + pacman.radius;
+	            const cy = game.toPixelPos(row.row - 1) + pacman.radius;
+	            if (!started) {
+	              context.moveTo(cx, cy);
+	              started = true;
+	            } else {
+	              context.lineTo(cx, cy);
+	            }
+	          }
+	        });
+	      });
+	    }
+	
+	    context.stroke();
+	  }
+
 
 	// TODO: only for debugging
 	function renderGrid(gridPixelSize, color) {
