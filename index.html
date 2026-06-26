@@ -948,9 +948,18 @@ function update() {
     }
   }
 
+  // Screen shake — intensifies as more flour is consumed (the high builds)
+  const highRatio = totalFlour > 0 ? eatenFlour / totalFlour : 0;
+  const shakeMax = 5 * highRatio * highRatio; // quadratic ramp — subtle start, strong finish
+  const shakeX = gameState === 'playing' && shakeMax > 0.2 ? (Math.random() - 0.5) * 2 * shakeMax : 0;
+  const shakeY = gameState === 'playing' && shakeMax > 0.2 ? (Math.random() - 0.5) * 2 * shakeMax : 0;
+
+  ctx.save();
+  ctx.translate(shakeX, shakeY);
+
   // Draw
   ctx.fillStyle = '#0a0a0a';
-  ctx.fillRect(0, 0, W, H);
+  ctx.fillRect(-10, -10, W + 20, H + 20); // slightly oversized to cover shake edges
   drawMaze();
   drawFlour();
   drawPowerPellets();
@@ -983,6 +992,8 @@ function update() {
   if (gameState === 'gameover') {
     drawHighScores();
   }
+
+  ctx.restore(); // end screen shake transform
 
   updateUI();
   requestAnimationFrame(update);
