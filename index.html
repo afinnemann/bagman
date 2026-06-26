@@ -965,7 +965,7 @@ function checkCollisions() {
 function updateUI() {
   document.getElementById('score').textContent = score;
   document.getElementById('lives').textContent = lives;
-  document.getElementById('level').textContent = level + ' / ' + MAX_LEVEL + ' — ' + (LEVEL_NAMES[level - 1] || '');
+  document.getElementById('level').textContent = LEVEL_NAMES[level - 1] || level;
   document.getElementById('run').textContent = attempts;
 }
 
