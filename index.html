@@ -32,7 +32,7 @@
     font-size: 18px;
   }
   #header span { color: #fff3b0; }
-  canvas { border: 2px solid #3a3a36; border-radius: 4px; }
+  canvas { border: 2px solid #3a3a36; border-radius: 4px; max-width: 95vw; max-height: 70vh; touch-action: none; }
   #message {
     margin-top: 12px;
     font-size: 22px;
@@ -55,8 +55,8 @@
   <div>RUN: <span id="run">1</span></div>
 </div>
 <canvas id="game"></canvas>
-<div id="message">Press any arrow key to start</div>
-<div id="controls">Arrow keys or WASD to move &bull; R to restart &bull; 5 levels to survive</div>
+<div id="message">Press arrow key or tap to start</div>
+<div id="controls">Arrow keys / WASD / Swipe to move &bull; R to restart &bull; 5 levels to survive</div>
 
 <script>
 // ── Constants ──
@@ -462,6 +462,34 @@ document.addEventListener('keydown', e => {
   if ((e.key === 'r' || e.key === 'R') && gameState !== 'entering_name') restartGame();
 });
 document.addEventListener('keyup', e => { keys[e.key] = false; });
+
+// ── Touch / swipe controls for mobile ──
+let touchStartX = 0, touchStartY = 0;
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+  // Tap to start
+  if (gameState === 'waiting') {
+    gameState = 'playing';
+    levelFlashTimer = 60;
+    levelFlashNum = level;
+  }
+  if (gameState === 'gameover') restartGame();
+}, { passive: false });
+
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  const minSwipe = 20;
+  if (Math.abs(dx) < minSwipe && Math.abs(dy) < minSwipe) return;
+  if (Math.abs(dx) > Math.abs(dy)) {
+    pac.nextDir = dx > 0 ? 2 : 0; // right or left
+  } else {
+    pac.nextDir = dy > 0 ? 3 : 1; // down or up
+  }
+}, { passive: false });
 
 // ── Drawing ──
 function drawMaze() {
@@ -1023,7 +1051,7 @@ function restartGame() {
   deathFlashTimer = 0;
   levelFlashTimer = 0;
   gameState = 'waiting';
-  document.getElementById('message').textContent = 'Press any arrow key to start';
+  document.getElementById('message').textContent = 'Press arrow key or tap to start';
 }
 
 // ── Init ──
